@@ -1,0 +1,16 @@
+telegram:
+  botName: Price_checker_project_bot
+  token:
+
+spring:
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url:
+    username:
+    password:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL9Dialect
