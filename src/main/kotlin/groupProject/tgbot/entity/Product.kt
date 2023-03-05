@@ -13,11 +13,11 @@ data class Product (
     var name: String? = "",
 
     @Column(nullable = false)
-    val url: String? = "",
+    var url: String? = "",
 
     @Column(name = "chat_id", nullable = false)
-    val chatId: String? = "",
+    var chatId: Long? = 0,
 
     @Column(nullable = false)
-    val price: Long? = 0
+    var price: Long? = 0
 )
