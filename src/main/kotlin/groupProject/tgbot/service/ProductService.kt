@@ -6,4 +6,6 @@ interface ProductService {
     fun saveNewProduct(chatId: Long, url: String): ProductDto?
 
     fun findAllProducts(chatId: Long): List<ProductDto>
+
+    fun deleteOneByChatIdAndNumber(chatId: Long, number: Long): String
 }

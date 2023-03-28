@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<kotlin.version>1.7.22</kotlin.version>
-		<selenium.version>4.5.3</selenium.version>
+		<selenium.version>4.8.3</selenium.version>
 	</properties>
 
 	<dependencies>
@@ -110,6 +110,17 @@
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>1.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-http-jdk-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-devtools-v111</artifactId>
+			<version>4.8.3</version>
 		</dependency>
 	</dependencies>
 

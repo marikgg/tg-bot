@@ -46,4 +46,16 @@ class ProductServiceImpl constructor(
         return productDtos
     }
 
+    override fun deleteOneByChatIdAndNumber(chatId: Long, number: Long): String {
+        val productList = productRepository.findAllByChatId(chatId)
+        var result = "Товар успешно удален из списка"
+        try {
+            val product = productList[number.toInt() - 1]
+            productRepository.delete(product)
+        } catch (e: Exception) {
+            result = "Вы ввели неправильный номер"
+        }
+
+        return result
+    }
 }

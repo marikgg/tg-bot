@@ -16,4 +16,4 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQL9Dialect
 
 bot:
-  checkPricesFixedRate:
+  checkPricesFixedRate: 300000

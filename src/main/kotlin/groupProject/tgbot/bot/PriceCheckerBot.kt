@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import java.net.MalformedURLException
 import java.net.URL
+import java.util.*
 
 @Component
 class PriceCheckerBot : TelegramLongPollingBot() {
@@ -22,13 +23,19 @@ class PriceCheckerBot : TelegramLongPollingBot() {
         "Данный бот служит для отслеживания цены продуктов DNS, Wildberries"
 
     val newProductMessage =
-        "Вставьте ссылку на продукт"
+        "Вставьте ссылку на продукт."
 
     val errorNewProductMessage =
-        "Данный продукт не удалось добавить в отслеживаемые"
+        "Данный продукт не удалось добавить в отслеживаемые."
 
     val successNewProductMessage =
         "Вы добавили новый товар в отслеживаемые - \n"
+
+    val enterNumberToDelete =
+        "Введите \"Удалить (№ товара)\""
+
+    val pleaseWaitMsg =
+        "Пожалуйста, подождите..."
 
     @Value("\${telegram.token}")
     private var token: String = ""
@@ -50,14 +57,21 @@ class PriceCheckerBot : TelegramLongPollingBot() {
                     messageText.equals("/start") -> description
                     messageText.equals("Добавить новый продукт") -> newProductMessage
                     checkUrlIsCorrect(messageText) ->  {
+                        sendNotification(chatId, pleaseWaitMsg)
                         val product = productService.saveNewProduct(chatId, messageText)
                         if (product == null)  errorNewProductMessage
                         else successNewProductMessage + product.toString()
                     }
                     messageText.equals("Показать все отслеживаемые продукты") -> {
-                        productService.findAllProducts(chatId).toString()
+                        this.composeAllProductsMessage(chatId)
                     }
-
+                    messageText.equals("Удалить продукт из отслеживаемых") -> {
+                        sendNotification(chatId, enterNumberToDelete)
+                        this.composeAllProductsMessage(chatId)
+                    }
+                    messageText.lowercase(Locale.getDefault()).startsWith("удалить ") && messageText.last().isDigit()-> {
+                        productService.deleteOneByChatIdAndNumber(chatId, messageText.filter { it.isDigit() }.toLong())
+                    }
                     else -> {"Вы ввели несуществующую команду"}
                 }
 
@@ -73,7 +87,7 @@ class PriceCheckerBot : TelegramLongPollingBot() {
         sendMessage.enableMarkdown(true)
         sendMessage.replyMarkup = getReplyMarkup(
             listOf(
-                listOf("Добавить новый продукт", "Показать все отслеживаемые продукты"))
+                listOf("Добавить новый продукт", "Показать все отслеживаемые продукты", "Удалить продукт из отслеживаемых"))
         )
         execute(sendMessage)
     }
@@ -85,6 +99,7 @@ class PriceCheckerBot : TelegramLongPollingBot() {
             rowButtons.forEach { rowButton -> row.add(rowButton) }
             row
         }
+        markup.resizeKeyboard = true
         return markup
     }
 
@@ -95,5 +110,20 @@ class PriceCheckerBot : TelegramLongPollingBot() {
         } catch (var5: MalformedURLException) {
             false
         }
+    }
+
+    private fun composeAllProductsMessage(chatId: Long) : String {
+        var msg = ""
+        val products = productService.findAllProducts(chatId)
+        if (products.isEmpty()) {
+            return "Список отслеживаемых продуктов пуст."
+        }
+        products.forEachIndexed{i, product ->
+            run {
+                val index = i + 1
+                msg += "$index) $product"
+            }
+        }
+        return msg
     }
 }

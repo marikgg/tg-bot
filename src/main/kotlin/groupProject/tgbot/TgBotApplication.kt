@@ -9,5 +9,11 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class TgBotApplication
 
 fun main(args: Array<String>) {
-	SpringApplication.run(TgBotApplication::class.java, *args)
+	val ctx = SpringApplication.run(TgBotApplication::class.java, *args)
+	val chromeDriverUrl = ctx.environment.getProperty("chrome_driver.url")
+	chromeDriverUrl?.let {
+		System.setProperty("webdriver.chrome.driver", it)
+		System.setProperty("webdriver.chrome.whitelistedIps", "")
+		System.setProperty("webdriver.http.factory", "jdk-http-client")
+	}
 }
