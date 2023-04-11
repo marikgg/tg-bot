@@ -6,6 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URL
 import java.time.Duration
@@ -18,6 +19,11 @@ class ProductUtils {
         WILDBERRIES("www.wildberries.ru"),
         DNS("www.dns-shop.ru"),
     }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(ProductUtils::class.java)
+    }
+
 
     fun findProductInfo(url: String?): ProductDto? {
         val urlObj = URL(url)
@@ -32,47 +38,51 @@ class ProductUtils {
     private fun findWildberriesProductInfo(url: String?): ProductDto? {
 
         val driver = ChromeDriver(getChromeOptions())
-        driver.get(url)
-
-        val wait = WebDriverWait(driver, Duration.ofSeconds(60))
-
         try {
+            driver.get(url)
+
+            val wait = WebDriverWait(driver, Duration.ofSeconds(120))
+
+
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("product-page__header")))
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("price-block__final-price")))
+
+
+            val name = driver.findElement(By.className("product-page__header")).text
+            val priceWithCurrency = driver.findElement(By.className("price-block__final-price")).text
+            val price = priceWithCurrency.split(",")[0].filter { it.isDigit() }.toLong()
+
+            return ProductDto(name, price)
         } catch (e: Exception) {
-            driver.quit()
+            log.error(e.message)
             return null
+        } finally {
+            driver.quit()
         }
-
-        val name = driver.findElement(By.className("product-page__header")).text
-        val priceWithCurrency = driver.findElement(By.className("price-block__final-price")).text
-        val price = priceWithCurrency.filter { it.isDigit() }.toLong()
-
-        driver.quit()
-        return ProductDto(name, price)
     }
 
     private fun findDnsProductInfo(url: String?): ProductDto? {
         val driver = ChromeDriver(getChromeOptions())
-        driver.get(url)
-
-        val wait = WebDriverWait(driver, Duration.ofSeconds(60))
-
         try {
+            driver.get(url)
+
+            val wait = WebDriverWait(driver, Duration.ofSeconds(120))
+
+
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("product-buy__price")))
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("product-card-top__title")))
-        }
-        catch (e: Exception) {
-            driver.quit()
+
+            val name = driver.findElement(By.className("product-card-top__title")).text
+            val priceWithCurrency = driver.findElement(By.className("product-buy__price")).text
+            val price = priceWithCurrency.split(",")[0].filter { it.isDigit() }.toLong()
+
+            return ProductDto(name, price)
+        } catch (e: Exception) {
+            log.error(e.message)
             return null
+        } finally {
+            driver.quit()
         }
-
-        val name = driver.findElement(By.className("product-card-top__title")).text
-        val priceWithCurrency = driver.findElement(By.className("product-buy__price")).text
-        val price = priceWithCurrency.filter { it.isDigit() }.toLong()
-
-        driver.quit()
-        return ProductDto(name, price)
     }
 
     private fun getChromeOptions(): ChromeOptions {
@@ -82,7 +92,8 @@ class ProductUtils {
             "--headless=new",
             "--disable-gpu",
             "--disable-dev-shm-usage",
-            "--remote-allow-origins=*")
+            "--remote-allow-origins=*",
+            "--window-size=1024,768")
         return chromeOptions
     }
 }

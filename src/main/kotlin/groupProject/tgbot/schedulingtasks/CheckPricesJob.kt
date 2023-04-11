@@ -31,9 +31,6 @@ class CheckPricesJob constructor(
                                 "Была - ${it.price}. Стала - ${updatedProduct.price}")
                     it.price = updatedProduct.price
                     productRepository.save(it)
-                } else {
-                    priceCheckerBot.sendNotification(it.chatId,
-                        "Цена на товар \"${it.name}\" не изменилась.")
                 }
             }
         }

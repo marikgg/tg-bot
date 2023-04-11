@@ -55,17 +55,17 @@ class PriceCheckerBot : TelegramLongPollingBot() {
                 val messageText = message.text
                 when {
                     messageText.equals("/start") -> description
-                    messageText.equals("Добавить новый продукт") -> newProductMessage
+                    messageText.equals("Добавить товар") -> newProductMessage
                     checkUrlIsCorrect(messageText) ->  {
                         sendNotification(chatId, pleaseWaitMsg)
                         val product = productService.saveNewProduct(chatId, messageText)
                         if (product == null)  errorNewProductMessage
                         else successNewProductMessage + product.toString()
                     }
-                    messageText.equals("Показать все отслеживаемые продукты") -> {
+                    messageText.equals("Показать все товары") -> {
                         this.composeAllProductsMessage(chatId)
                     }
-                    messageText.equals("Удалить продукт из отслеживаемых") -> {
+                    messageText.equals("Удалить товар") -> {
                         sendNotification(chatId, enterNumberToDelete)
                         this.composeAllProductsMessage(chatId)
                     }
@@ -87,7 +87,7 @@ class PriceCheckerBot : TelegramLongPollingBot() {
         sendMessage.enableMarkdown(true)
         sendMessage.replyMarkup = getReplyMarkup(
             listOf(
-                listOf("Добавить новый продукт", "Показать все отслеживаемые продукты", "Удалить продукт из отслеживаемых"))
+                listOf("Добавить товар", "Показать все товары", "Удалить товар"))
         )
         execute(sendMessage)
     }
